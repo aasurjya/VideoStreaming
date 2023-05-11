@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Video Streaming App</title>
@@ -11,5 +11,65 @@
     <br><br>
     <h3>Received Video</h3>
     <video id="received-video" width="640" height="480" autoplay></video>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webcam Stream</title>
+</head>
+<body>
+    <h1>Webcam Stream</h1>
+    <button id="toggle-stream-button">Start Stream</button>
+    <div>
+        <h2>Local Video</h2>
+        <video id="local-video" autoplay playsinline></video>
+    </div>
+    <div>
+        <h2>Remote Video</h2>
+        <video id="remote-video" autoplay playsinline></video>
+    </div>
+
+    <script>
+        const constraints = { video: true };
+
+        let localStream;
+        let remoteStream;
+
+        const toggleStreamButton = document.getElementById("toggle-stream-button");
+        const localVideo = document.getElementById("local-video");
+        const remoteVideo = document.getElementById("remote-video");
+
+        function startStream() {
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(stream => {
+                    localStream = stream;
+                    localVideo.srcObject = stream;
+                    remoteVideo.srcObject = new MediaStream();
+                    remoteStream = remoteVideo.srcObject;
+
+                    toggleStreamButton.innerText = "Stop Stream";
+                    toggleStreamButton.removeEventListener("click", startStream);
+                    toggleStreamButton.addEventListener("click", stopStream);
+                })
+                .catch(err => {
+                    console.error("Error starting stream:", err);
+                });
+        }
+
+        function stopStream() {
+            localStream.getTracks().forEach(track => track.stop());
+            remoteStream.getTracks().forEach(track => track.stop());
+            localVideo.srcObject = null;
+            remoteVideo.srcObject = null;
+            
+            toggleStreamButton.innerText = "Start Stream";
+            toggleStreamButton.removeEventListener("click", stopStream);
+            toggleStreamButton.addEventListener("click", startStream);
+        }
+
+        toggleStreamButton.addEventListener("click", startStream);
+    </script>
 </body>
 </html>
